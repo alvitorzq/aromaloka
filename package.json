@@ -5,13 +5,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/server.js",
-    "start-dev": "nodemon src/app.js"
+    "start": "nodemon server.js",
+    "start-dev": "nodemon src/app.js",
+    "start-prod": "node server.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@hapi/hapi": "^21.3.2",
+    "@hapi/inert": "^7.1.0",
     "firebase": "^9.22.2",
     "firebase-admin": "^11.9.0",
     "hapi": "^18.1.0",
