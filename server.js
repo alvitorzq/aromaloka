@@ -275,6 +275,94 @@ const init = async () => {
 
   server.route({
     method: 'GET',
+    path: '/notes',
+    handler: async (request, h) => {
+      try {
+        const db = admin.firestore();
+        // Query the Firestore collection
+        const querySnapshot = await db.collection('perfumes').get();
+  
+        // Check if any documents exist
+        if (querySnapshot.empty) {
+          return h.response('No documents found').code(404);
+        }
+  
+        const notesSet = new Set();
+  
+        // Iterate over each document
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          // Extract notes from the specified fields and add them to the set
+          addNotesToSet(notesSet, data.base_notes1);
+          addNotesToSet(notesSet, data.base_notes2);
+          addNotesToSet(notesSet, data.base_notes3);
+          addNotesToSet(notesSet, data.mid_notes1);
+          addNotesToSet(notesSet, data.mid_notes2);
+          addNotesToSet(notesSet, data.mid_notes3);
+          addNotesToSet(notesSet, data.top_notes1);
+          addNotesToSet(notesSet, data.top_notes2);
+          addNotesToSet(notesSet, data.top_notes3);
+        });
+  
+        // Convert the set to an array and return the response
+        const uniqueNotes = Array.from(notesSet);
+        return h.response(uniqueNotes);
+      } catch (error) {
+        console.error('Error retrieving notes:', error);
+        return h.response('Internal server error').code(500);
+      }
+    }
+  });
+  
+  // Helper function to add notes to the set
+  function addNotesToSet(notesSet, notes) {
+    if (Array.isArray(notes)) {
+      notes.forEach((note) => {
+        if (note) {
+          notesSet.add(note);
+        }
+      });
+    } else if (notes) {
+      notesSet.add(notes);
+    }
+  }
+  
+
+  server.route({
+    method: 'GET',
+    path: '/perfume/brand/{brand}',
+    handler: async (request, h) => {
+      try {
+        const brand = request.params.brand;
+
+        const db = admin.firestore();
+  
+        // Query the Firestore collection based on "brand" field
+        const querySnapshot = await db
+          .collection('perfumes')
+          .where('brand', '==', brand)
+          .get();
+  
+        // Check if any documents match the query
+        if (querySnapshot.empty) {
+          return h.response('No documents found').code(404);
+        }
+  
+        const data = [];
+        querySnapshot.forEach((doc) => {
+          data.push(doc.data());
+        });
+  
+        return h.response(data);
+      } catch (error) {
+        console.error('Error retrieving documents:', error);
+        return h.response('Internal server error').code(500);
+      }
+    }
+  });
+
+  server.route({
+    method: 'GET',
     path: '/perfumes/',
     handler: async (request, h) => {
       try {
