@@ -279,20 +279,16 @@ const init = async () => {
     handler: async (request, h) => {
       try {
         const db = admin.firestore();
-        // Query the Firestore collection
         const querySnapshot = await db.collection('perfumes').get();
   
-        // Check if any documents exist
         if (querySnapshot.empty) {
           return h.response('No documents found').code(404);
         }
   
         const notesSet = new Set();
   
-        // Iterate over each document
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          // Extract notes from the specified fields and add them to the set
           addNotesToSet(notesSet, data.base_notes1);
           addNotesToSet(notesSet, data.base_notes2);
           addNotesToSet(notesSet, data.base_notes3);
@@ -304,9 +300,16 @@ const init = async () => {
           addNotesToSet(notesSet, data.top_notes3);
         });
   
-        // Convert the set to an array and return the response
         const uniqueNotes = Array.from(notesSet);
-        return h.response(uniqueNotes);
+  
+        // Transform the uniqueNotes array into the desired format
+        const response = uniqueNotes.map((note) => {
+          return {
+            name: note
+          };
+        });
+  
+        return h.response(response);
       } catch (error) {
         console.error('Error retrieving notes:', error);
         return h.response('Internal server error').code(500);
@@ -326,6 +329,39 @@ const init = async () => {
       notesSet.add(notes);
     }
   }
+  
+  server.route({
+    method: 'GET',
+    path: '/get-all-brand',
+    handler: async (request, h) => {
+      try {
+        // Get a Firestore reference
+        const db = admin.firestore();
+
+        // Query the "perfumes" collection and retrieve all documents
+        const querySnapshot = await db.collection('perfumes').get();
+
+        // Create a Set to store unique brand names
+        const brandSet = new Set();
+
+        // Loop through each document and extract the brand name
+        querySnapshot.forEach((doc) => {
+          const brand = doc.data().brand;
+          brandSet.add(brand);
+        });
+
+        // Format the response as an array of objects with a "name" property
+        const brandNames = Array.from(brandSet).map((brand) => ({
+          name: brand
+        }));
+
+        return brandNames;
+      } catch (error) {
+        console.error('Error retrieving data:', error);
+        return h.response('Internal server error').code(500);
+      }
+    }
+  });
   
 
   server.route({
