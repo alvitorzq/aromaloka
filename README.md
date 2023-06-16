@@ -53,7 +53,7 @@ From the point of view of consumers, perfume shopping can be overwhelming due to
 ## Our Projects Repository
 
 - [Aromaloka Android Apps]()
-- [Aromaloka Machine Learning Recommendation Model]()
+- [Aromaloka Machine Learning Recommendation Model](https://github.com/aikosulaiman/aromaloka)
 - [Aromloka API](https://github.com/alvitorzq/aromaloka)
 
 ### Prerequisites
